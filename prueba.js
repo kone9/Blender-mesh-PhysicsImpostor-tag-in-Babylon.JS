@@ -1,15 +1,22 @@
+"use strict";
 /// <reference path="babylon.js" />
 /// <reference path="babylon.inspector.bundle.js" />
 /// <reference path="babylonjs.loaders.min.js" />
 /// <reference path="cannon.js" />
 /// <reference path="Oimo.js" />
 /// <reference path="ammo.js" />
+exports.__esModule = true;
 // import babylon = require("./babylon");
 // import babylonInspectorBundle = require("./babylon.inspector.bundle");
 // import babylonjsLoadersMin = require("./babylonjs.loaders.min");
 // import cannon = require("./cannon");
 // //import Oimo = require("./Oimo");
 // import ammo = require("./ammo");
+//NOTA IMPORTANTE
+// Lamentablemente al importar los modelos de Blender3D con Físicas
+// no funcionan las colisiones o no se puede acceder al physics impostor
+// osea habra que hacer hacer los modelos en blender3D y crear las físicas
+// en babylon.js por codigo realmente parece un bug del motor
 var canvas = document.getElementById("renderCanvas");
 var engine = null;
 var scene = null;
@@ -32,40 +39,49 @@ var Playground = /** @class */ (function () {
         camera.attachControl(canvas, true);
         var light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, 1, 0), scene);
         var light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 1, -1), scene);
+        var cubo;
+        var suelo;
         BABYLON.SceneLoader.ImportMesh("", "./babylonBlenderFIle/", "Escenario.babylon", scene, 
         //BABYLON.SceneLoader.ImportMesh("","/./","Gltf/Escenario.glb",scene,
         function (newMeshes) {
-            var cubo = scene.getNodeByName("cubo");
-            var suelo = scene.getNodeByName("suelo");
+            cubo = scene.getNodeByName("cubo");
+            suelo = scene.getNodeByName("suelo");
+            //var suelo: BABYLON.PhysicsImpostor = <unknown>scene.getNodeByName("suelo") as BABYLON.PhysicsImpostor;
             console.log(BABYLON.Tags.GetTags(cubo));
             console.log(BABYLON.Tags.GetTags(suelo));
             var sueloFisico = new BABYLON.PhysicsImpostor(suelo, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0, damping: 0 }, scene);
+            var cuboFisico = new BABYLON.PhysicsImpostor(cubo, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, friction: 0, damping: 0 }, scene);
             //BABYLON.Tags.AddTagsTo(sueloFisico,"suelo");
             var mostrarColisiones = new BABYLON.Debug.PhysicsViewer(scene);
-            //cubo.PhysicsImpostor
+            mostrarColisiones.showImpostor(cuboFisico);
+            mostrarColisiones.showImpostor(sueloFisico);
+            BABYLON.Tags.AddTagsTo(sueloFisico, "sueloFisico");
+            BABYLON.Tags.AddTagsTo(cuboFisico, "cuboFisico");
+            console.log(BABYLON.Tags.GetTags(sueloFisico));
             if (suelo) //If the soil exists
              {
                 console.log(sueloFisico.mass); //NO WORK
                 mostrarColisiones.showImpostor(sueloFisico); //NO WORK
                 sueloFisico.onCollideEvent = function (collider, collidedWith) {
-                    console.log("algo colisiono con el suelo"); //NO WORK
-                    if (BABYLON.Tags.GetTags(collidedWith) === "cuboTags") //NO WORK
+                    console.log("algo colisiono con el suelo pero no en la etiqueta"); //NO WORK
+                    if (BABYLON.Tags.GetTags(collidedWith) === "cuboFisico") //NO WORK
                      {
-                        console.log("el cubo colisiono"); //NO WORK
+                        console.log("el cubo colisiono en la etiqueta"); //NO WORK
                     }
                 };
             }
-            // scene.onBeforePhysicsObservable.add(()=>
+            // if(cubo)
             // {
-            //     if(scene.isReady() && suelo)
-            //     {
-            //         console.log("el suelo esta cargado")
-            //     }
-            // })
-            // if((cubo).intersectsMesh(suelo,false))
-            // {
-            //     console.log("colisiono con el suelo");
+            //     //console.log(cubo.checkCollisions);  
+            //     cubo.onCollideObservable.add(() => {
+            //         console.log("colisionaron las mallas")    
+            //         if (cubo.collider.collidedMesh == suelo)
+            //         {
+            //             console.log("colisionaron las mallas")    
+            //         }
+            //     });
             // }
+            //cubo.PhysicsImpostor                
         });
         return scene;
     };
