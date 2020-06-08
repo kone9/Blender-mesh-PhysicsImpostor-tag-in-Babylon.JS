@@ -1,11 +1,9 @@
-"use strict";
 /// <reference path="babylon.js" />
 /// <reference path="babylon.inspector.bundle.js" />
 /// <reference path="babylonjs.loaders.min.js" />
 /// <reference path="cannon.js" />
 /// <reference path="Oimo.js" />
 /// <reference path="ammo.js" />
-exports.__esModule = true;
 // import babylon = require("./babylon");
 // import babylonInspectorBundle = require("./babylon.inspector.bundle");
 // import babylonjsLoadersMin = require("./babylonjs.loaders.min");
@@ -44,44 +42,27 @@ var Playground = /** @class */ (function () {
         BABYLON.SceneLoader.ImportMesh("", "./babylonBlenderFIle/", "Escenario.babylon", scene, 
         //BABYLON.SceneLoader.ImportMesh("","/./","Gltf/Escenario.glb",scene,
         function (newMeshes) {
-            cubo = scene.getNodeByName("cubo");
-            suelo = scene.getNodeByName("suelo");
-            //var suelo: BABYLON.PhysicsImpostor = <unknown>scene.getNodeByName("suelo") as BABYLON.PhysicsImpostor;
+            var cubo = scene.getNodeByName("cubo");
+            //Try this but it doesn't work
+            var soil = scene.getNodeByName("suelo"); //NO WORK
+            ///////////////////////////////
             console.log(BABYLON.Tags.GetTags(cubo));
-            console.log(BABYLON.Tags.GetTags(suelo));
-            var sueloFisico = new BABYLON.PhysicsImpostor(suelo, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0, damping: 0 }, scene);
-            var cuboFisico = new BABYLON.PhysicsImpostor(cubo, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, friction: 0, damping: 0 }, scene);
+            console.log(BABYLON.Tags.GetTags(soil));
+            //var sueloFisico: BABYLON.PhysicsImpostor = new BABYLON.PhysicsImpostor(suelo,BABYLON.PhysicsImpostor.BoxImpostor,{mass:0,friction:0,damping:0},scene);
             //BABYLON.Tags.AddTagsTo(sueloFisico,"suelo");
-            var mostrarColisiones = new BABYLON.Debug.PhysicsViewer(scene);
-            mostrarColisiones.showImpostor(cuboFisico);
-            mostrarColisiones.showImpostor(sueloFisico);
-            BABYLON.Tags.AddTagsTo(sueloFisico, "sueloFisico");
-            BABYLON.Tags.AddTagsTo(cuboFisico, "cuboFisico");
-            console.log(BABYLON.Tags.GetTags(sueloFisico));
-            if (suelo) //If the soil exists
+            var showCollision = new BABYLON.Debug.PhysicsViewer(scene);
+            if (soil) //If the soil exists//
              {
-                console.log(sueloFisico.mass); //NO WORK
-                mostrarColisiones.showImpostor(sueloFisico); //NO WORK
-                sueloFisico.onCollideEvent = function (collider, collidedWith) {
-                    console.log("algo colisiono con el suelo pero no en la etiqueta"); //NO WORK
-                    if (BABYLON.Tags.GetTags(collidedWith) === "cuboFisico") //NO WORK
+                console.log(soil.mass); //NO WORK
+                showCollision.showImpostor(soil); //NO WORK
+                soil.onCollideEvent = function (collider, collidedWith) {
+                    console.log("algo colisiono con el suelo"); //NO WORK
+                    if (BABYLON.Tags.GetTags(collidedWith) === "cuboTags") //NO WORK
                      {
-                        console.log("el cubo colisiono en la etiqueta"); //NO WORK
+                        console.log("el cubo colisiono"); //NO WORK
                     }
                 };
             }
-            // if(cubo)
-            // {
-            //     //console.log(cubo.checkCollisions);  
-            //     cubo.onCollideObservable.add(() => {
-            //         console.log("colisionaron las mallas")    
-            //         if (cubo.collider.collidedMesh == suelo)
-            //         {
-            //             console.log("colisionaron las mallas")    
-            //         }
-            //     });
-            // }
-            //cubo.PhysicsImpostor                
         });
         return scene;
     };
